@@ -1,0 +1,232 @@
+system:
+  name: "GSP发布与智能回滚自动化平台"
+  version: "1.0.0"
+  env: "production"
+  log_level: "INFO"
+  log_path: "./logs"
+  data_path: "./data"
+
+pre_check:
+  gsp:
+    enabled: true
+    first_supplier_check: true
+    first_drug_check: true
+    near_expiry_warning_days: 90
+    expired_lock_enabled: true
+    fifo_rule_enabled: true
+    fefo_rule_enabled: true
+    block_levels:
+      first_supplier: "high"
+      first_drug: "high"
+      near_expiry: "medium"
+      expired_lock: "high"
+      fifo: "medium"
+      fefo: "medium"
+
+  inventory:
+    enabled: true
+    wms_erp_reconciliation: true
+    doc_integrity_check: true
+    batch_consistency_check: true
+    diff_rate_threshold: 0.001
+    block_levels:
+      wms_erp_diff: "high"
+      doc_integrity: "high"
+      batch_consistency: "high"
+
+  cold_chain:
+    enabled: true
+    temp_humidity_check: true
+    alarm_linkage_test: true
+    broken_chain_detection: true
+    data_completeness_threshold: 0.999
+    alarm_response_time: 300
+    block_levels:
+      data_completeness: "high"
+      alarm_response: "high"
+      broken_chain: "medium"
+
+  drug_admin:
+    enabled: true
+    trace_code_upload: true
+    e_code_scan: true
+    online_platform_sync: true
+    upload_success_rate: 1.0
+    scan_response_time: 3
+    sync_delay_threshold: 1800
+    block_levels:
+      trace_upload: "high"
+      e_code_scan: "medium"
+      platform_sync: "medium"
+
+approval:
+  channels:
+    normal:
+      name: "常规迭代"
+      approval_mode: "serial"
+      timeout_hours: 72
+      notify_interval_hours: 24
+    hotfix:
+      name: "紧急热修复"
+      approval_mode: "parallel"
+      timeout_hours: 2
+      notify_interval_minutes: 30
+      post_signoff_hours: 48
+
+  approvers:
+    quality_manager:
+      role: "质量负责人"
+      department: "质量管理部"
+      notify_channel: "dingtalk"
+    business:
+      role: "业务部门"
+      department: "采购/销售/仓储"
+      notify_channel: "dingtalk"
+    quality_control:
+      role: "质管部"
+      department: "质管部"
+      notify_channel: "dingtalk"
+    it:
+      role: "IT部门"
+      department: "信息技术部"
+      notify_channel: "dingtalk"
+
+  serial_flow:
+    - quality_manager
+    - business
+    - quality_control
+    - it
+
+  parallel_flow:
+    - quality_manager
+    - business
+    - quality_control
+    - it
+
+gray_release:
+  enabled: true
+  stages:
+    - stage: 1
+      name: "常温库/普通药品库"
+      warehouse_types: ["normal_temperature", "common_drug"]
+      observation_hours: 2
+      risk_level: "low"
+    - stage: 2
+      name: "阴凉库"
+      warehouse_types: ["cool_storage"]
+      observation_hours: 4
+      risk_level: "medium"
+    - stage: 3
+      name: "冷藏库/冷冻库"
+      warehouse_types: ["refrigerated", "frozen"]
+      observation_hours: 8
+      risk_level: "high"
+    - stage: 4
+      name: "特殊管理药品库"
+      warehouse_types: ["special_management"]
+      observation_hours: 24
+      risk_level: "critical"
+
+  monitor:
+    interval_seconds: 300
+    metrics:
+      document:
+        purchase_error_rate:
+          warning: 0.01
+          circuit_breaker: 0.05
+        sales_error_rate:
+          warning: 0.01
+          circuit_breaker: 0.05
+        inbound_check_error_rate:
+          warning: 0.005
+          circuit_breaker: 0.03
+        outbound_check_error_rate:
+          warning: 0.005
+          circuit_breaker: 0.03
+      cold_chain:
+        broken_chain_rate:
+          warning: 0.001
+          circuit_breaker: 0.005
+        temp_humidity_exceed_rate:
+          warning: 0.005
+          circuit_breaker: 0.02
+        alarm_timeout_rate:
+          warning: 0.05
+          circuit_breaker: 0.2
+      drug_admin:
+        trace_upload_failure_rate:
+          warning: 0.001
+          circuit_breaker: 0.01
+        e_code_scan_failure_rate:
+          warning: 0.005
+          circuit_breaker: 0.03
+        sync_delay_rate:
+          warning: 0.05
+          circuit_breaker: 0.2
+
+  circuit_breaker:
+    enabled: true
+    trend_deterioration_count: 3
+    auto_rollback: true
+    rollback_levels:
+      - "function"
+      - "warehouse"
+      - "system"
+      - "data"
+
+audit:
+  enabled: true
+  log_retention_years: 5
+  log_types:
+    - release_operation
+    - data_change
+    - quality_gate
+    - abnormal_event
+
+  report:
+    release_review:
+      enabled: true
+      auto_generate: true
+    statistics:
+      monthly_success_rate: true
+      monthly_duration: true
+      quarterly_rollback_analysis: true
+      quarterly_gsp_compliance: true
+      monthly_quality_trend: true
+
+notification:
+  dingtalk:
+    enabled: false
+    webhook_url: ""
+    secret: ""
+  wechat_work:
+    enabled: false
+    webhook_url: ""
+  email:
+    enabled: false
+    smtp_host: ""
+    smtp_port: 465
+    sender: ""
+    password: ""
+
+external_systems:
+  wms:
+    base_url: "http://wms.example.com/api"
+    api_key: ""
+    timeout: 30
+  erp:
+    base_url: "http://erp.example.com/api"
+    api_key: ""
+    timeout: 30
+  cold_chain:
+    base_url: "http://coldchain.example.com/api"
+    api_key: ""
+    timeout: 30
+  drug_admin:
+    base_url: "http://drugadmin.example.com/api"
+    api_key: ""
+    timeout: 30
+  gsp:
+    base_url: "http://gsp.example.com/api"
+    api_key: ""
+    timeout: 30

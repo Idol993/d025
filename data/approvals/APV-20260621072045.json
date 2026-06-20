@@ -1,0 +1,57 @@
+{
+  "flow_id": "APV-20260621072045",
+  "channel": "normal",
+  "release_id": "REL-20240101",
+  "nodes": {
+    "quality_manager": {
+      "node_id": "quality_manager",
+      "role": "质量负责人",
+      "department": "质量管理部",
+      "order": 0,
+      "status": "approved",
+      "approver": "李质量",
+      "approval_time": "2026-06-21 07:21:01",
+      "comment": "GSP合规性审核通过，同意发布",
+      "attachment": null
+    },
+    "business": {
+      "node_id": "business",
+      "role": "业务部门",
+      "department": "采购/销售/仓储",
+      "order": 1,
+      "status": "pending",
+      "approver": null,
+      "approval_time": null,
+      "comment": "",
+      "attachment": null
+    },
+    "quality_control": {
+      "node_id": "quality_control",
+      "role": "质管部",
+      "department": "质管部",
+      "order": 2,
+      "status": "pending",
+      "approver": null,
+      "approval_time": null,
+      "comment": "",
+      "attachment": null
+    },
+    "it": {
+      "node_id": "it",
+      "role": "IT部门",
+      "department": "信息技术部",
+      "order": 3,
+      "status": "pending",
+      "approver": null,
+      "approval_time": null,
+      "comment": "",
+      "attachment": null
+    }
+  },
+  "create_time": "2026-06-21 07:20:45",
+  "update_time": "2026-06-21 07:21:01",
+  "current_node_id": "business",
+  "overall_status": "pending",
+  "emergency_reason": "",
+  "deviation_report": null
+}

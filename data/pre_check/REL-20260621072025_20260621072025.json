@@ -1,0 +1,395 @@
+{
+  "release_id": "REL-20260621072025",
+  "version": "2.0.0",
+  "check_start_time": "2026-06-21 07:20:25",
+  "check_end_time": "2026-06-21 07:20:25",
+  "status": "completed",
+  "overall_pass": false,
+  "block_level": "high",
+  "modules": {
+    "gsp_rules": {
+      "module": "gsp_rules",
+      "check_time": "2026-06-21 07:20:25",
+      "checks": {
+        "first_supplier": {
+          "success": false,
+          "message": "1家首营企业资质不完整",
+          "data": {
+            "failed_suppliers": [
+              {
+                "supplier": "山东新时代药业有限公司",
+                "missing": [
+                  "gsp_certificate"
+                ]
+              }
+            ],
+            "suggestion": "请补充以下企业资质文件: 山东新时代药业有限公司"
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "high"
+        },
+        "first_drug": {
+          "success": true,
+          "message": "1个首营品种资质校验全部通过",
+          "data": null,
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "high"
+        },
+        "near_expiry": {
+          "success": false,
+          "message": "近效期药品共5个批次，仅4个触发预警，触发率80.0%",
+          "data": {
+            "near_expiry_drugs": [
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20240101",
+                "expiry_date": "2026-01-01",
+                "days_left": -172,
+                "warning_triggered": true
+              },
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20230601",
+                "expiry_date": "2025-06-01",
+                "days_left": -386,
+                "warning_triggered": true
+              },
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20220301",
+                "expiry_date": "2024-03-01",
+                "days_left": -843,
+                "warning_triggered": true
+              },
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20210501",
+                "expiry_date": "2023-05-01",
+                "days_left": -1148,
+                "warning_triggered": true
+              },
+              {
+                "drug": "感冒灵颗粒",
+                "batch": "20240201",
+                "expiry_date": "2026-02-01",
+                "days_left": -141,
+                "warning_triggered": false
+              }
+            ],
+            "trigger_rate": 0.8,
+            "suggestion": "近效期预警覆盖率不足，请检查预警规则配置。当前预警天数设置: 90天"
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "medium"
+        },
+        "expired_lock": {
+          "success": false,
+          "message": "过期药品共5个批次，4个未正确锁定",
+          "data": {
+            "expired_drugs": [
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20240101",
+                "expiry_date": "2026-01-01",
+                "is_locked": false,
+                "can_outbound": true
+              },
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20230601",
+                "expiry_date": "2025-06-01",
+                "is_locked": false,
+                "can_outbound": true
+              },
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20220301",
+                "expiry_date": "2024-03-01",
+                "is_locked": true,
+                "can_outbound": false
+              },
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20210501",
+                "expiry_date": "2023-05-01",
+                "is_locked": false,
+                "can_outbound": true
+              },
+              {
+                "drug": "感冒灵颗粒",
+                "batch": "20240201",
+                "expiry_date": "2026-02-01",
+                "is_locked": false,
+                "can_outbound": true
+              }
+            ],
+            "unlocked_expired": [
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20240101",
+                "expiry_date": "2026-01-01",
+                "is_locked": false,
+                "can_outbound": true
+              },
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20230601",
+                "expiry_date": "2025-06-01",
+                "is_locked": false,
+                "can_outbound": true
+              },
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20210501",
+                "expiry_date": "2023-05-01",
+                "is_locked": false,
+                "can_outbound": true
+              },
+              {
+                "drug": "感冒灵颗粒",
+                "batch": "20240201",
+                "expiry_date": "2026-02-01",
+                "is_locked": false,
+                "can_outbound": true
+              }
+            ],
+            "lock_rate": 0.2,
+            "suggestion": "过期药品锁定逻辑存在缺陷，4个过期批次未被锁定或仍可出库，请检查锁定规则"
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "high"
+        },
+        "fifo": {
+          "success": true,
+          "message": "FIFO先进先出规则校验通过",
+          "data": null,
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "medium"
+        },
+        "fefo": {
+          "success": true,
+          "message": "FEFO近效期先出规则校验通过",
+          "data": null,
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "medium"
+        }
+      },
+      "passed": false,
+      "has_warning": true,
+      "block_level": "high",
+      "summary": "GSP规则校验未通过，2个核心指标不达标",
+      "suggestions": [
+        "请补充以下企业资质文件: 山东新时代药业有限公司",
+        "近效期预警覆盖率不足，请检查预警规则配置。当前预警天数设置: 90天",
+        "过期药品锁定逻辑存在缺陷，4个过期批次未被锁定或仍可出库，请检查锁定规则"
+      ]
+    },
+    "inventory_consistency": {
+      "module": "inventory_consistency",
+      "check_time": "2026-06-21 07:20:25",
+      "checks": {
+        "wms_erp_diff": {
+          "success": true,
+          "message": "WMS-ERP库存对账通过，共2个品种，总体差异率0.0111%",
+          "data": {
+            "total_items": 2,
+            "overall_diff_rate": 0.0001111234582
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "high"
+        },
+        "doc_integrity": {
+          "success": false,
+          "message": "存在不完整单据，涉及2种单据类型，共3张不完整",
+          "data": {
+            "failed_types": [
+              {
+                "type": "sales_orders",
+                "name": "销售单",
+                "total": 320,
+                "incomplete": 2,
+                "incomplete_rate": 0.00625
+              },
+              {
+                "type": "check_orders",
+                "name": "复核单",
+                "total": 450,
+                "incomplete": 1,
+                "incomplete_rate": 0.0022222222222222222
+              }
+            ],
+            "total_docs": 1570,
+            "total_incomplete": 3,
+            "suggestion": "以下单据存在完整性问题: 销售单, 复核单，请在发布前修复数据完整性"
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "high"
+        },
+        "batch_consistency": {
+          "success": true,
+          "message": "批次一致性校验通过，共1个批次，一致率100%",
+          "data": {
+            "total_batches": 1
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "high"
+        }
+      },
+      "passed": false,
+      "has_warning": false,
+      "block_level": "high",
+      "summary": "进销存一致性校验未通过，1个核心指标不达标",
+      "suggestions": [
+        "以下单据存在完整性问题: 销售单, 复核单，请在发布前修复数据完整性"
+      ]
+    },
+    "cold_chain": {
+      "module": "cold_chain",
+      "check_time": "2026-06-21 07:20:25",
+      "checks": {
+        "data_completeness": {
+          "success": false,
+          "message": "温湿度数据采集完整性不达标，1个传感器数据完整率低于阈值(99.900%)，总体完整率99.653%",
+          "data": {
+            "failed_sensors": [
+              {
+                "sensor_id": "S002",
+                "sensor_name": "常温库1号传感器",
+                "warehouse": "常温库",
+                "expected": 288,
+                "actual": 285,
+                "completeness": 0.9895833333333334,
+                "pass": false
+              }
+            ],
+            "total_sensors": 3,
+            "failed_count": 1,
+            "overall_completeness": 0.9965277777777778,
+            "suggestion": "以下传感器数据采集不完整: 常温库1号传感器，请检查冷链设备及数据采集通道"
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "high"
+        },
+        "alarm_response": {
+          "success": false,
+          "message": "报警联动测试通过率66.7%，1个用例失败，响应时间阈值: 300秒",
+          "data": {
+            "failed_cases": [
+              {
+                "case_name": "断电报警测试",
+                "alarm_triggered": false,
+                "response_time": 0,
+                "notification_received": false,
+                "pass": false,
+                "issues": [
+                  "报警未触发",
+                  "通知未送达"
+                ]
+              }
+            ],
+            "total_cases": 3,
+            "passed": 2,
+            "failed": 1,
+            "pass_rate": 0.6666666666666666,
+            "suggestion": "以下报警测试用例失败: 断电报警测试: 报警未触发,通知未送达，请检查报警规则配置与通知渠道"
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "high"
+        },
+        "broken_chain": {
+          "success": true,
+          "message": "冷链断链检测校验通过，共5条断链记录，可追溯率100%",
+          "data": {
+            "total_records": 5,
+            "traceable_rate": 1.0
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "medium"
+        }
+      },
+      "passed": false,
+      "has_warning": false,
+      "block_level": "high",
+      "summary": "冷链记录完整性校验未通过，2个核心指标不达标",
+      "suggestions": [
+        "以下传感器数据采集不完整: 常温库1号传感器，请检查冷链设备及数据采集通道",
+        "以下报警测试用例失败: 断电报警测试: 报警未触发,通知未送达，请检查报警规则配置与通知渠道"
+      ]
+    },
+    "drug_admin_interface": {
+      "module": "drug_admin_interface",
+      "check_time": "2026-06-21 07:20:25",
+      "checks": {
+        "trace_upload": {
+          "success": true,
+          "message": "追溯码上传接口校验通过，上传成功率100.00%，平均响应时间450ms",
+          "data": {
+            "total": 500,
+            "success": 500,
+            "success_rate": 1.0,
+            "avg_response_time_ms": 450
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "high"
+        },
+        "e_code_scan": {
+          "success": true,
+          "message": "电子监管码扫码接口校验通过，扫码成功率99.58%，平均响应时间1.5s",
+          "data": {
+            "total": 1200,
+            "success": 1195,
+            "success_rate": 0.9958333333333333,
+            "avg_response_time_seconds": 1.5
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "medium"
+        },
+        "platform_sync": {
+          "success": true,
+          "message": "联网监管平台同步校验通过，最近同步时间: 2024-01-20 14:30:00，延迟15分钟",
+          "data": {
+            "last_sync_time": "2024-01-20 14:30:00",
+            "sync_delay_minutes": 15,
+            "pending_count": 50
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:20:25",
+          "block_level": "medium"
+        }
+      },
+      "passed": true,
+      "has_warning": false,
+      "block_level": "none",
+      "summary": "药监接口连通性校验全部通过",
+      "suggestions": []
+    }
+  },
+  "total_checks": 15,
+  "passed_checks": 0,
+  "failed_checks": 15,
+  "warning_checks": 6,
+  "blocked_checks": 9,
+  "all_suggestions": [
+    "请补充以下企业资质文件: 山东新时代药业有限公司",
+    "近效期预警覆盖率不足，请检查预警规则配置。当前预警天数设置: 90天",
+    "过期药品锁定逻辑存在缺陷，4个过期批次未被锁定或仍可出库，请检查锁定规则",
+    "以下单据存在完整性问题: 销售单, 复核单，请在发布前修复数据完整性",
+    "以下传感器数据采集不完整: 常温库1号传感器，请检查冷链设备及数据采集通道",
+    "以下报警测试用例失败: 断电报警测试: 报警未触发,通知未送达，请检查报警规则配置与通知渠道"
+  ],
+  "summary": "前置校验未通过，9个核心指标阻断发布，6个警告项，请修复后重新提交"
+}

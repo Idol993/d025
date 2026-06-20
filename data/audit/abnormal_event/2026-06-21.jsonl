@@ -1,0 +1,1 @@
+{"log_id": "AUD-20260621072147-6316", "log_type": "abnormal_event", "action": "circuit_break", "operator": "system", "target": "GRY-20260621072119", "detail": {"cb_id": "CBR-20260621072147", "reason": "出库复核单据异常率超过5%，触发熔断", "rollback_level": "warehouse", "rollback_success": True}, "ip_address": "", "timestamp": "2026-06-21 07:21:47", "date": "2026-06-21"}

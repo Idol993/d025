@@ -1,0 +1,265 @@
+{
+  "new_suppliers": [
+    {
+      "name": "江苏恒瑞医药股份有限公司",
+      "business_license": {
+        "exists": true,
+        "expiry_date": "2028-06-15"
+      },
+      "gsp_certificate": {
+        "exists": true,
+        "expiry_date": "2027-03-20"
+      },
+      "legal_person_id": {
+        "exists": true
+      },
+      "authorization_letter": {
+        "exists": true
+      }
+    },
+    {
+      "name": "山东新时代药业有限公司",
+      "business_license": {
+        "exists": true,
+        "expiry_date": "2026-12-31"
+      },
+      "gsp_certificate": {
+        "exists": false
+      },
+      "legal_person_id": {
+        "exists": true
+      },
+      "authorization_letter": {
+        "exists": true
+      }
+    }
+  ],
+  "new_drugs": [
+    {
+      "name": "注射用头孢曲松钠",
+      "drug_registration_certificate": {
+        "exists": true,
+        "expiry_date": "2027-08-10"
+      },
+      "drug_approval_number": {
+        "exists": true
+      },
+      "manufacturer_license": {
+        "exists": true
+      },
+      "quality_standard": {
+        "exists": true
+      },
+      "package_spec": {
+        "exists": true
+      },
+      "label_sample": {
+        "exists": true
+      }
+    }
+  ],
+  "drugs": [
+    {
+      "name": "阿莫西林胶囊",
+      "batches": [
+        {
+          "batch_no": "20240101",
+          "expiry_date": "2026-01-01",
+          "quantity": 5000,
+          "warning_triggered": true,
+          "is_locked": false,
+          "can_outbound": true
+        },
+        {
+          "batch_no": "20230601",
+          "expiry_date": "2025-06-01",
+          "quantity": 3000,
+          "warning_triggered": true,
+          "is_locked": false,
+          "can_outbound": true
+        },
+        {
+          "batch_no": "20220301",
+          "expiry_date": "2024-03-01",
+          "quantity": 100,
+          "warning_triggered": true,
+          "is_locked": true,
+          "can_outbound": false
+        },
+        {
+          "batch_no": "20210501",
+          "expiry_date": "2023-05-01",
+          "quantity": 50,
+          "warning_triggered": true,
+          "is_locked": false,
+          "can_outbound": true
+        }
+      ]
+    },
+    {
+      "name": "感冒灵颗粒",
+      "batches": [
+        {
+          "batch_no": "20240201",
+          "expiry_date": "2026-02-01",
+          "quantity": 10000,
+          "warning_triggered": false,
+          "is_locked": false,
+          "can_outbound": true
+        }
+      ]
+    }
+  ],
+  "fifo_config": {
+    "enabled": true,
+    "priority": 1
+  },
+  "fifo_test_cases": [
+    {
+      "name": "同品种同批次按入库顺序出库",
+      "expected_order": ["20230101", "20230601", "20240101"],
+      "actual_order": ["20230101", "20230601", "20240101"]
+    }
+  ],
+  "fefo_config": {
+    "enabled": true,
+    "priority": 2
+  },
+  "fefo_test_cases": [
+    {
+      "name": "同品种按效期远近出库",
+      "expected_order": ["20240101", "20250601", "20260101"],
+      "actual_order": ["20240101", "20250601", "20260101"]
+    }
+  ],
+  "wms_inventory": {
+    "drug_001": {
+      "batch_20240101": {"quantity": 5000},
+      "batch_20230601": {"quantity": 3000}
+    },
+    "drug_002": {
+      "batch_20240201": {"quantity": 10000}
+    }
+  },
+  "erp_inventory": {
+    "drug_001": {
+      "batch_20240101": {"quantity": 5000},
+      "batch_20230601": {"quantity": 2998}
+    },
+    "drug_002": {
+      "batch_20240201": {"quantity": 10000}
+    }
+  },
+  "doc_statistics": {
+    "purchase_orders": {"total": 150, "incomplete": 0},
+    "sales_orders": {"total": 320, "incomplete": 2},
+    "inbound_orders": {"total": 200, "incomplete": 0},
+    "outbound_orders": {"total": 450, "incomplete": 0},
+    "check_orders": {"total": 450, "incomplete": 1}
+  },
+  "wms_batches": {
+    "drug_001": {
+      "batch_20240101": {
+        "expiry_date": "2026-01-01",
+        "manufacturer": "华北制药",
+        "specification": "0.5g*24粒",
+        "quantity": 5000
+      }
+    }
+  },
+  "erp_batches": {
+    "drug_001": {
+      "batch_20240101": {
+        "expiry_date": "2026-01-01",
+        "manufacturer": "华北制药",
+        "specification": "0.5g*24粒",
+        "quantity": 5000
+      }
+    }
+  },
+  "temp_humidity_data": {
+    "sensors": [
+      {
+        "id": "S001",
+        "name": "冷藏库1号传感器",
+        "warehouse": "冷藏库",
+        "expected_records": 288,
+        "actual_records": 288
+      },
+      {
+        "id": "S002",
+        "name": "常温库1号传感器",
+        "warehouse": "常温库",
+        "expected_records": 288,
+        "actual_records": 285
+      },
+      {
+        "id": "S003",
+        "name": "阴凉库1号传感器",
+        "warehouse": "阴凉库",
+        "expected_records": 288,
+        "actual_records": 288
+      }
+    ]
+  },
+  "alarm_test_data": {
+    "test_cases": [
+      {
+        "name": "温度超标报警测试-冷藏库",
+        "alarm_triggered": true,
+        "response_time_seconds": 120,
+        "notification_received": true
+      },
+      {
+        "name": "湿度超标报警测试-阴凉库",
+        "alarm_triggered": true,
+        "response_time_seconds": 180,
+        "notification_received": true
+      },
+      {
+        "name": "断电报警测试",
+        "alarm_triggered": false,
+        "response_time_seconds": 0,
+        "notification_received": false
+      }
+    ]
+  },
+  "broken_chain_data": {
+    "total_records": 5,
+    "traceable_count": 5,
+    "records": [
+      {
+        "id": "BC001",
+        "drug": "胰岛素注射液",
+        "start_time": "2024-01-15 08:30:00",
+        "end_time": "2024-01-15 09:15:00",
+        "duration_minutes": 45,
+        "traceable": true,
+        "reason": "运输车辆临时故障",
+        "measures": "启用备用冷链箱，产品重新检验合格后入库"
+      }
+    ]
+  },
+  "trace_upload_data": {
+    "connection_ok": true,
+    "total": 500,
+    "success": 500,
+    "failed": 0,
+    "avg_response_time_ms": 450,
+    "failed_records": []
+  },
+  "electronic_code_data": {
+    "connection_ok": true,
+    "total": 1200,
+    "success": 1195,
+    "failed": 5,
+    "avg_response_time_seconds": 1.5
+  },
+  "platform_sync_data": {
+    "sync_ok": true,
+    "last_sync_time": "2024-01-20 14:30:00",
+    "sync_delay_minutes": 15,
+    "pending_count": 50,
+    "total_count": 2000
+  }
+}

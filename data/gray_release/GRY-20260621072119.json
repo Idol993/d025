@@ -1,0 +1,81 @@
+{
+  "gray_id": "GRY-20260621072119",
+  "release_id": "REL-20240101",
+  "version": "2.0.0",
+  "target_version": "1.9.0",
+  "create_time": "2026-06-21 07:21:19",
+  "update_time": "2026-06-21 07:21:28",
+  "status": "stage_observing",
+  "current_stage": 2,
+  "stages": [
+    {
+      "stage_num": 1,
+      "name": "常温库/普通药品库",
+      "warehouse_types": [
+        "normal_temperature",
+        "common_drug"
+      ],
+      "observation_hours": 2,
+      "risk_level": "low",
+      "status": "completed",
+      "start_time": "2026-06-21 07:21:19",
+      "end_time": "2026-06-21 07:21:28",
+      "metrics_history_count": 0
+    },
+    {
+      "stage_num": 2,
+      "name": "阴凉库",
+      "warehouse_types": [
+        "cool_storage"
+      ],
+      "observation_hours": 4,
+      "risk_level": "medium",
+      "status": "in_progress",
+      "start_time": "2026-06-21 07:21:28",
+      "end_time": null,
+      "metrics_history_count": 0
+    },
+    {
+      "stage_num": 3,
+      "name": "冷藏库/冷冻库",
+      "warehouse_types": [
+        "refrigerated",
+        "frozen"
+      ],
+      "observation_hours": 8,
+      "risk_level": "high",
+      "status": "pending",
+      "start_time": null,
+      "end_time": null,
+      "metrics_history_count": 0
+    },
+    {
+      "stage_num": 4,
+      "name": "特殊管理药品库",
+      "warehouse_types": [
+        "special_management"
+      ],
+      "observation_hours": 24,
+      "risk_level": "critical",
+      "status": "pending",
+      "start_time": null,
+      "end_time": null,
+      "metrics_history_count": 0
+    }
+  ],
+  "metrics": {},
+  "events": [
+    {
+      "time": "2026-06-21 07:21:19",
+      "type": "start",
+      "detail": "灰度发布启动，进入第一阶段"
+    },
+    {
+      "time": "2026-06-21 07:21:28",
+      "type": "stage_advance",
+      "detail": "进入阶段2: 阴凉库"
+    }
+  ],
+  "circuit_breaker_triggered": false,
+  "rollback_triggered": false
+}
