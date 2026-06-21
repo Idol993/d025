@@ -1,0 +1,45 @@
+{
+  "circuit_breaker_id": "CBR-20260621075325",
+  "gray_id": "GRY-20260621075243",
+  "trigger_time": "2026-06-21 07:53:25",
+  "reason": "测试熔断回滚流程",
+  "rollback_level": "warehouse",
+  "status": "rolled_back",
+  "rollback_executed": true,
+  "events": [
+    {
+      "time": "2026-06-21 07:53:25",
+      "type": "trigger",
+      "detail": "熔断触发: 测试熔断回滚流程"
+    },
+    {
+      "time": "2026-06-21 07:53:25",
+      "type": "rollback_start",
+      "detail": "开始warehouse级回滚，目标版本: 2.9.0"
+    },
+    {
+      "time": "2026-06-21 07:53:25",
+      "type": "rollback_end",
+      "detail": "回滚完成，结果: 成功"
+    },
+    {
+      "time": "2026-06-21 07:53:25",
+      "type": "verify",
+      "detail": "回滚验证通过"
+    }
+  ],
+  "rollback_start_time": "2026-06-21 07:53:25",
+  "target_version": "2.9.0",
+  "rollback_end_time": "2026-06-21 07:53:25",
+  "rollback_result": {
+    "success": true,
+    "message": "warehouse级回滚执行完成",
+    "actions_executed": [
+      "暂停受影响仓库业务",
+      "回滚仓库相关配置",
+      "恢复仓库旧版本服务",
+      "验证仓库业务正常"
+    ],
+    "target_version": "2.9.0"
+  }
+}

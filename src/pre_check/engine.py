@@ -112,27 +112,38 @@ class PreCheckEngine:
             checks = module_result.get("checks", {})
             for check_key, check_result in checks.items():
                 total += 1
-                status = check_result.get("status", "unknown")
 
-                if status == "passed" or (status == "success" and check_result.get("success", False)):
+                is_skipped = check_result.get("status") == "skipped"
+                is_error = check_result.get("status") == "error"
+                is_success = check_result.get("success", False)
+
+                if is_skipped:
+                    continue
+                elif is_error:
+                    failed += 1
+                    block_level = check_result.get("block_level", "medium")
+                    if level_order.get(block_level, 0) > level_order.get(max_block_level, 0):
+                        max_block_level = block_level
+                    if block_level == "high":
+                        blocked += 1
+                        overall_pass = False
+                    else:
+                        warnings += 1
+                elif is_success:
                     passed += 1
-                elif status == "skipped":
-                    pass
                 else:
                     failed += 1
                     block_level = check_result.get("block_level", "medium")
-
                     if level_order.get(block_level, 0) > level_order.get(max_block_level, 0):
                         max_block_level = block_level
-
                     if block_level == "high":
                         blocked += 1
                         overall_pass = False
                     else:
                         warnings += 1
 
-            suggestions = module_result.get("suggestions", [])
-            all_suggestions.extend(suggestions)
+                suggestions = module_result.get("suggestions", [])
+                all_suggestions.extend(suggestions)
 
         result["overall_pass"] = overall_pass
         result["block_level"] = max_block_level

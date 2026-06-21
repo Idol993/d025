@@ -1,7 +1,7 @@
 {
-  "flow_id": "APV-20260621072045",
+  "flow_id": "APV-20260621075219",
   "channel": "normal",
-  "release_id": "REL-20240101",
+  "release_id": "REL-FULL-001",
   "nodes": {
     "quality_manager": {
       "node_id": "quality_manager",
@@ -10,8 +10,8 @@
       "order": 0,
       "status": "approved",
       "approver": "李质量",
-      "approval_time": "2026-06-21 07:21:01",
-      "comment": "GSP合规性审核通过，同意发布",
+      "approval_time": "2026-06-21 07:52:33",
+      "comment": "GSP合规性审核通过",
       "attachment": null
     },
     "business": {
@@ -19,10 +19,10 @@
       "role": "业务部门",
       "department": "采购/销售/仓储",
       "order": 1,
-      "status": "pending",
-      "approver": null,
-      "approval_time": null,
-      "comment": "",
+      "status": "approved",
+      "approver": "王业务",
+      "approval_time": "2026-06-21 07:52:34",
+      "comment": "业务影响评估通过",
       "attachment": null
     },
     "quality_control": {
@@ -30,10 +30,10 @@
       "role": "质管部",
       "department": "质管部",
       "order": 2,
-      "status": "pending",
-      "approver": null,
-      "approval_time": null,
-      "comment": "",
+      "status": "approved",
+      "approver": "赵质管",
+      "approval_time": "2026-06-21 07:52:34",
+      "comment": "质管流程评估通过",
       "attachment": null
     },
     "it": {
@@ -41,17 +41,17 @@
       "role": "IT部门",
       "department": "信息技术部",
       "order": 3,
-      "status": "pending",
-      "approver": null,
-      "approval_time": null,
-      "comment": "",
+      "status": "approved",
+      "approver": "孙IT",
+      "approval_time": "2026-06-21 07:52:34",
+      "comment": "技术方案评估通过",
       "attachment": null
     }
   },
-  "create_time": "2026-06-21 07:20:45",
-  "update_time": "2026-06-21 07:21:01",
-  "current_node_id": "business",
-  "overall_status": "pending",
+  "create_time": "2026-06-21 07:52:19",
+  "update_time": "2026-06-21 07:52:34",
+  "current_node_id": null,
+  "overall_status": "approved",
   "emergency_reason": "",
   "deviation_report": null
 }

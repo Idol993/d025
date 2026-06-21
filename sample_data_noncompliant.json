@@ -1,0 +1,225 @@
+{
+  "new_suppliers": [
+    {
+      "name": "问题供应商有限公司",
+      "business_license": {
+        "exists": false,
+        "expiry_date": ""
+      },
+      "gsp_certificate": {
+        "exists": true,
+        "expiry_date": "2027-03-20"
+      },
+      "legal_person_id": {
+        "exists": true
+      },
+      "authorization_letter": {
+        "exists": false
+      }
+    }
+  ],
+  "new_drugs": [
+    {
+      "name": "问题药品注射液",
+      "drug_registration_certificate": {
+        "exists": false,
+        "expiry_date": ""
+      },
+      "drug_approval_number": {
+        "exists": true
+      },
+      "manufacturer_license": {
+        "exists": false
+      },
+      "quality_standard": {
+        "exists": true
+      },
+      "package_spec": {
+        "exists": true
+      },
+      "label_sample": {
+        "exists": true
+      }
+    }
+  ],
+  "drugs": [
+    {
+      "name": "阿莫西林胶囊",
+      "batches": [
+        {
+          "batch_no": "20240101",
+          "expiry_date": "2027-01-01",
+          "quantity": 5000,
+          "warning_triggered": false,
+          "is_locked": false,
+          "can_outbound": true
+        },
+        {
+          "batch_no": "20260401",
+          "expiry_date": "2026-08-01",
+          "quantity": 200,
+          "warning_triggered": false,
+          "is_locked": false,
+          "can_outbound": true
+        },
+        {
+          "batch_no": "20240601",
+          "expiry_date": "2026-05-01",
+          "quantity": 50,
+          "warning_triggered": false,
+          "is_locked": false,
+          "can_outbound": true
+        }
+      ]
+    }
+  ],
+  "fifo_config": {
+    "enabled": true,
+    "priority": 1
+  },
+  "fifo_test_cases": [
+    {
+      "name": "同品种同批次按入库顺序出库",
+      "expected_order": ["20230101", "20230601", "20240101"],
+      "actual_order": ["20240101", "20230101", "20230601"]
+    }
+  ],
+  "fefo_config": {
+    "enabled": true,
+    "priority": 2
+  },
+  "fefo_test_cases": [
+    {
+      "name": "同品种按效期远近出库",
+      "expected_order": ["20260401", "20260901", "20270101"],
+      "actual_order": ["20270101", "20260401", "20260901"]
+    }
+  ],
+  "wms_inventory": {
+    "drug_001": {
+      "batch_20240101": {"quantity": 5000}
+    }
+  },
+  "erp_inventory": {
+    "drug_001": {
+      "batch_20240101": {"quantity": 4800}
+    }
+  },
+  "doc_statistics": {
+    "purchase_orders": {"total": 150, "incomplete": 5},
+    "sales_orders": {"total": 320, "incomplete": 8},
+    "inbound_orders": {"total": 200, "incomplete": 3},
+    "outbound_orders": {"total": 450, "incomplete": 10},
+    "check_orders": {"total": 450, "incomplete": 0}
+  },
+  "wms_batches": {
+    "drug_001": {
+      "batch_20240101": {
+        "expiry_date": "2027-01-01",
+        "manufacturer": "华北制药",
+        "specification": "0.5g*24粒",
+        "quantity": 5000
+      }
+    }
+  },
+  "erp_batches": {
+    "drug_001": {
+      "batch_20240101": {
+        "expiry_date": "2027-01-01",
+        "manufacturer": "华北制药",
+        "specification": "0.5g*24粒",
+        "quantity": 5000
+      }
+    }
+  },
+  "temp_humidity_data": {
+    "sensors": [
+      {
+        "id": "S001",
+        "name": "冷藏库1号传感器",
+        "warehouse": "冷藏库",
+        "expected_records": 288,
+        "actual_records": 250
+      },
+      {
+        "id": "S002",
+        "name": "常温库1号传感器",
+        "warehouse": "常温库",
+        "expected_records": 288,
+        "actual_records": 288
+      }
+    ]
+  },
+  "alarm_test_data": {
+    "test_cases": [
+      {
+        "name": "温度超标报警测试-冷藏库",
+        "alarm_triggered": false,
+        "response_time_seconds": 0,
+        "notification_received": false
+      },
+      {
+        "name": "湿度超标报警测试-阴凉库",
+        "alarm_triggered": true,
+        "response_time_seconds": 180,
+        "notification_received": true
+      }
+    ]
+  },
+  "broken_chain_data": {
+    "total_records": 3,
+    "traceable_count": 1,
+    "records": [
+      {
+        "record_id": "BC001",
+        "time": "2026-06-20 08:30:00",
+        "duration_minutes": 45,
+        "traceable": true,
+        "reason": "冷链设备临时断电"
+      },
+      {
+        "record_id": "BC002",
+        "time": "2026-06-20 14:20:00",
+        "duration_minutes": 30,
+        "traceable": false,
+        "reason": ""
+      },
+      {
+        "record_id": "BC003",
+        "time": "2026-06-21 02:15:00",
+        "duration_minutes": 60,
+        "traceable": false,
+        "reason": ""
+      }
+    ]
+  },
+  "trace_upload_data": {
+    "connection_ok": true,
+    "total": 500,
+    "success": 450,
+    "failed": 50,
+    "avg_response_time_ms": 450,
+    "failed_records": [
+      {
+        "trace_code": "TC001",
+        "drug_name": "阿莫西林胶囊",
+        "batch_no": "20240101",
+        "error": "网络超时"
+      }
+    ]
+  },
+  "electronic_code_data": {
+    "connection_ok": true,
+    "total": 1200,
+    "success": 1150,
+    "failed": 50,
+    "avg_response_time_seconds": 1.5
+  },
+  "platform_sync_data": {
+    "sync_ok": true,
+    "last_sync_time": "2026-06-20 07:00:00",
+    "sync_delay_minutes": 60,
+    "pending_count": 200,
+    "total_count": 2000
+  }
+}

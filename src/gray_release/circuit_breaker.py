@@ -82,7 +82,7 @@ class CircuitBreakerEngine:
         }
 
         all_metrics = self._flatten_metrics(self.metrics_config)
-        current_values = self._flatten_metrics(metrics) if metrics else {}
+        current_values = self._flatten_metric_values(metrics) if metrics else {}
 
         for metric_name, thresholds in all_metrics.items():
             current_val = current_values.get(metric_name)
@@ -142,6 +142,18 @@ class CircuitBreakerEngine:
                 flat[full_key] = value
             elif isinstance(value, dict):
                 flat.update(self._flatten_metrics(value, f"{full_key}."))
+        return flat
+
+    def _flatten_metric_values(self, nested_metrics: Dict[str, Any],
+                              prefix: str = "") -> Dict[str, Any]:
+        """扁平化嵌套的指标值（数字）"""
+        flat = {}
+        for key, value in nested_metrics.items():
+            full_key = f"{prefix}{key}" if prefix else key
+            if isinstance(value, dict):
+                flat.update(self._flatten_metric_values(value, f"{full_key}."))
+            else:
+                flat[full_key] = value
         return flat
 
     def _analyze_trend(self, metrics_history: List[Dict[str, Any]],

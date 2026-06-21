@@ -1,0 +1,229 @@
+{
+  "release_id": "REL-FULL-001",
+  "version": "3.0.0",
+  "check_start_time": "2026-06-21 07:52:09",
+  "check_end_time": "2026-06-21 07:52:09",
+  "status": "completed",
+  "overall_pass": true,
+  "block_level": "none",
+  "modules": {
+    "gsp_rules": {
+      "module": "gsp_rules",
+      "check_time": "2026-06-21 07:52:09",
+      "checks": {
+        "first_supplier": {
+          "success": true,
+          "message": "2家首营企业资质校验全部通过",
+          "data": null,
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "high"
+        },
+        "first_drug": {
+          "success": true,
+          "message": "1个首营品种资质校验全部通过",
+          "data": null,
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "high"
+        },
+        "near_expiry": {
+          "success": true,
+          "message": "近效期药品2个批次，预警覆盖率100%",
+          "data": {
+            "near_expiry_drugs": [
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20260301",
+                "expiry_date": "2026-09-01",
+                "days_left": 71,
+                "warning_triggered": true
+              },
+              {
+                "drug": "阿莫西林胶囊",
+                "batch": "20260401",
+                "expiry_date": "2026-08-01",
+                "days_left": 40,
+                "warning_triggered": true
+              }
+            ]
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "medium"
+        },
+        "expired_lock": {
+          "success": true,
+          "message": "无过期药品",
+          "data": null,
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "high"
+        },
+        "fifo": {
+          "success": true,
+          "message": "FIFO先进先出规则校验通过",
+          "data": null,
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "medium"
+        },
+        "fefo": {
+          "success": true,
+          "message": "FEFO近效期先出规则校验通过",
+          "data": null,
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "medium"
+        }
+      },
+      "passed": true,
+      "has_warning": false,
+      "block_level": "none",
+      "summary": "GSP规则校验全部通过",
+      "suggestions": []
+    },
+    "inventory_consistency": {
+      "module": "inventory_consistency",
+      "check_time": "2026-06-21 07:52:09",
+      "checks": {
+        "wms_erp_diff": {
+          "success": true,
+          "message": "WMS-ERP库存对账通过，共2个品种，总体差异率0.0000%",
+          "data": {
+            "total_items": 2,
+            "overall_diff_rate": 0.0
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "high"
+        },
+        "doc_integrity": {
+          "success": true,
+          "message": "单据完整性校验通过，共1570张单据，完整率100%",
+          "data": {
+            "total_docs": 1570
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "high"
+        },
+        "batch_consistency": {
+          "success": true,
+          "message": "批次一致性校验通过，共1个批次，一致率100%",
+          "data": {
+            "total_batches": 1
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "high"
+        }
+      },
+      "passed": true,
+      "has_warning": false,
+      "block_level": "none",
+      "summary": "进销存一致性校验全部通过",
+      "suggestions": []
+    },
+    "cold_chain": {
+      "module": "cold_chain",
+      "check_time": "2026-06-21 07:52:09",
+      "checks": {
+        "data_completeness": {
+          "success": true,
+          "message": "温湿度数据采集完整性校验通过，共3个传感器，总体完整率100.000%",
+          "data": {
+            "total_sensors": 3,
+            "overall_completeness": 1.0
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "high"
+        },
+        "alarm_response": {
+          "success": true,
+          "message": "报警联动测试通过，共3个测试用例，通过率100%，平均响应时间正常",
+          "data": {
+            "total_cases": 3,
+            "pass_rate": 1.0
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "high"
+        },
+        "broken_chain": {
+          "success": true,
+          "message": "冷链断链检测校验通过，共0条断链记录，可追溯率100%",
+          "data": {
+            "total_records": 0,
+            "traceable_rate": 1.0
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "medium"
+        }
+      },
+      "passed": true,
+      "has_warning": false,
+      "block_level": "none",
+      "summary": "冷链记录完整性校验全部通过",
+      "suggestions": []
+    },
+    "drug_admin_interface": {
+      "module": "drug_admin_interface",
+      "check_time": "2026-06-21 07:52:09",
+      "checks": {
+        "trace_upload": {
+          "success": true,
+          "message": "追溯码上传接口校验通过，上传成功率100.00%，平均响应时间450ms",
+          "data": {
+            "total": 500,
+            "success": 500,
+            "success_rate": 1.0,
+            "avg_response_time_ms": 450
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "high"
+        },
+        "e_code_scan": {
+          "success": true,
+          "message": "电子监管码扫码接口校验通过，扫码成功率100.00%，平均响应时间1.5s",
+          "data": {
+            "total": 1200,
+            "success": 1200,
+            "success_rate": 1.0,
+            "avg_response_time_seconds": 1.5
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "medium"
+        },
+        "platform_sync": {
+          "success": true,
+          "message": "联网监管平台同步校验通过，最近同步时间: 2026-06-21 07:00:00，延迟10分钟",
+          "data": {
+            "last_sync_time": "2026-06-21 07:00:00",
+            "sync_delay_minutes": 10,
+            "pending_count": 50
+          },
+          "level": "info",
+          "timestamp": "2026-06-21 07:52:09",
+          "block_level": "medium"
+        }
+      },
+      "passed": true,
+      "has_warning": false,
+      "block_level": "none",
+      "summary": "药监接口连通性校验全部通过",
+      "suggestions": []
+    }
+  },
+  "total_checks": 15,
+  "passed_checks": 15,
+  "failed_checks": 0,
+  "warning_checks": 0,
+  "blocked_checks": 0,
+  "all_suggestions": [],
+  "summary": "前置校验全部通过，可以进入审批流程"
+}

@@ -223,6 +223,36 @@ class GrayReleaseEngine:
 
         self._save_gray_release(release)
 
+    def update_status_to_rolled_back(self, gray_id: str, reason: str = "",
+                                rollback_level: str = "") -> Dict[str, Any]:
+        """更新灰度发布状态为已熔断/已回滚"""
+        release = self._load_gray_release(gray_id)
+        if not release:
+            return {"success": False, "message": "灰度发布任务不存在"}
+
+        release["status"] = GrayReleaseStatus.CIRCUIT_BROKEN.value
+        release["circuit_breaker_triggered"] = True
+        release["rollback_triggered"] = True
+        release["rollback_level"] = rollback_level
+        release["rollback_reason"] = reason
+        release["update_time"] = format_datetime()
+
+        self._add_event(release, "circuit_break", f"触发熔断: {reason}")
+        self._add_event(release, "rollback", f"执行{rollback_level}级回滚")
+
+        current_stage_num = release.get("current_stage", 0)
+        if current_stage_num > 0 and current_stage_num <= len(release["stages"]):
+            current_stage = release["stages"][current_stage_num - 1]
+            if current_stage.get("status") == GrayReleaseStatus.IN_PROGRESS.value:
+                current_stage["status"] = GrayReleaseStatus.CIRCUIT_BROKEN.value
+                current_stage["end_time"] = format_datetime()
+
+        self._save_gray_release(release)
+
+        self.logger.warning(f"灰度发布熔断 {gray_id} - 原因: {reason}, 级别: {rollback_level}")
+
+        return {"success": True, "message": "灰度状态已更新为已熔断", "release": release}
+
     def check_observation_complete(self, gray_id: str) -> bool:
         """检查当前阶段观察期是否结束"""
         release = self._load_gray_release(gray_id)

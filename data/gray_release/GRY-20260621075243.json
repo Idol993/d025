@@ -1,11 +1,11 @@
 {
-  "gray_id": "GRY-20260621072119",
-  "release_id": "REL-20240101",
-  "version": "2.0.0",
-  "target_version": "1.9.0",
-  "create_time": "2026-06-21 07:21:19",
-  "update_time": "2026-06-21 07:21:28",
-  "status": "stage_observing",
+  "gray_id": "GRY-20260621075243",
+  "release_id": "REL-FULL-001",
+  "version": "3.0.0",
+  "target_version": "2.9.0",
+  "create_time": "2026-06-21 07:52:43",
+  "update_time": "2026-06-21 07:53:25",
+  "status": "circuit_broken",
   "current_stage": 2,
   "stages": [
     {
@@ -18,8 +18,8 @@
       "observation_hours": 2,
       "risk_level": "low",
       "status": "completed",
-      "start_time": "2026-06-21 07:21:19",
-      "end_time": "2026-06-21 07:21:28",
+      "start_time": "2026-06-21 04:52:43",
+      "end_time": "2026-06-21 07:53:13",
       "metrics_history_count": 0
     },
     {
@@ -30,9 +30,9 @@
       ],
       "observation_hours": 4,
       "risk_level": "medium",
-      "status": "in_progress",
-      "start_time": "2026-06-21 07:21:28",
-      "end_time": null,
+      "status": "circuit_broken",
+      "start_time": "2026-06-21 07:53:13",
+      "end_time": "2026-06-21 07:53:25",
       "metrics_history_count": 0
     },
     {
@@ -66,16 +66,42 @@
   "metrics": {},
   "events": [
     {
-      "time": "2026-06-21 07:21:19",
+      "time": "2026-06-21 07:52:43",
       "type": "start",
       "detail": "灰度发布启动，进入第一阶段"
     },
     {
-      "time": "2026-06-21 07:21:28",
+      "time": "2026-06-21 07:53:13",
       "type": "stage_advance",
       "detail": "进入阶段2: 阴凉库"
+    },
+    {
+      "time": "2026-06-21 07:53:25",
+      "type": "circuit_break",
+      "detail": "触发熔断: 测试熔断回滚流程"
+    },
+    {
+      "time": "2026-06-21 07:53:25",
+      "type": "rollback",
+      "detail": "执行warehouse级回滚"
     }
   ],
-  "circuit_breaker_triggered": false,
-  "rollback_triggered": false
+  "circuit_breaker_triggered": true,
+  "rollback_triggered": true,
+  "metrics_history": [
+    {
+      "timestamp": "2026-06-21 07:53:25",
+      "stage": 2,
+      "metrics": {
+        "circuit_breaker_triggered": true,
+        "rollback": true
+      }
+    }
+  ],
+  "current_metrics": {
+    "circuit_breaker_triggered": true,
+    "rollback": true
+  },
+  "rollback_level": "warehouse",
+  "rollback_reason": "测试熔断回滚流程"
 }

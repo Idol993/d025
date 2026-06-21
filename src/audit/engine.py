@@ -179,13 +179,28 @@ class ReportEngine:
         """生成发布复盘报告"""
         report_id = f"RPT-REVIEW-{release_id}"
 
+        if pre_check_result is None:
+            pre_check_result = self._find_pre_check_by_release_id(release_id)
+        if approval_flow is None:
+            approval_flow = self._find_approval_by_release_id(release_id)
+        if gray_release is None:
+            gray_release = self._find_gray_release_by_release_id(release_id)
+        if circuit_breaker is None and gray_release:
+            circuit_breaker = self._find_cb_by_gray_id(gray_release.get("gray_id", ""))
+
         report = {
             "report_id": report_id,
             "report_type": "release_review",
             "release_id": release_id,
             "generate_time": format_datetime(),
             "version": gray_release.get("version", "N/A") if gray_release else "N/A",
-            "sections": {}
+            "sections": {},
+            "data_sources": {
+                "pre_check": pre_check_result is not None,
+                "approval_flow": approval_flow is not None,
+                "gray_release": gray_release is not None,
+                "circuit_breaker": circuit_breaker is not None
+            }
         }
 
         report["sections"]["basic_info"] = self._generate_basic_info_section(
@@ -295,25 +310,18 @@ class ReportEngine:
         self._save_report(report_id, report)
         return report
 
-    def generate_gsp_compliance_report(self, period: str = "quarter") -> Dict[str, Any]:
+    def generate_gsp_compliance_report(self, period: str = "quarter",
+                                       pre_check_result: Dict[str, Any] = None) -> Dict[str, Any]:
         """生成GSP合规报表"""
         report_id = f"RPT-GSP-{period}-{datetime.now().strftime('%Y%m%d')}"
 
-        compliance_items = [
-            {"item": "首营企业资质管理", "compliant": True, "non_compliant_count": 0, "description": "首营企业资质文件完整有效"},
-            {"item": "首营品种资质管理", "compliant": True, "non_compliant_count": 0, "description": "首营品种注册批件等资料齐全"},
-            {"item": "近效期预警机制", "compliant": True, "non_compliant_count": 0, "description": "近效期药品100%预警"},
-            {"item": "过期药品锁定", "compliant": True, "non_compliant_count": 0, "description": "过期药品自动锁定，禁止出库"},
-            {"item": "先进先出规则", "compliant": True, "non_compliant_count": 0, "description": "FIFO出库规则正确执行"},
-            {"item": "近效期先出规则", "compliant": True, "non_compliant_count": 0, "description": "FEFO出库规则正确执行"},
-            {"item": "冷链温湿度监控", "compliant": True, "non_compliant_count": 0, "description": "冷链药品温湿度全程可追溯"},
-            {"item": "药品追溯管理", "compliant": True, "non_compliant_count": 0, "description": "药品追溯码上传率100%"},
-            {"item": "操作日志可追溯", "compliant": True, "non_compliant_count": 0, "description": "所有操作留痕可审计"},
-        ]
+        compliance_items = self._generate_compliance_items_from_precheck(pre_check_result)
 
         total_items = len(compliance_items)
         compliant_count = sum(1 for item in compliance_items if item["compliant"])
         compliance_rate = compliant_count / total_items if total_items > 0 else 0
+
+        non_compliant_detail = [item for item in compliance_items if not item["compliant"]]
 
         report = {
             "report_id": report_id,
@@ -325,12 +333,75 @@ class ReportEngine:
             "compliant_items": compliant_count,
             "non_compliant_items": total_items - compliant_count,
             "compliance_details": compliance_items,
-            "non_compliant_items_detail": [item for item in compliance_items if not item["compliant"]],
+            "non_compliant_items_detail": non_compliant_detail,
+            "based_on_precheck": pre_check_result is not None,
             "rectification_notice": self._generate_rectification_notice(compliance_items)
         }
 
         self._save_report(report_id, report)
         return report
+
+    def _generate_compliance_items_from_precheck(self,
+            pre_check_result: Dict[str, Any] = None) -> List[Dict[str, Any]]:
+        """根据前置校验结果生成GSP合规检查项"""
+        items = [
+            {"item": "首营企业资质管理", "compliant": True, "non_compliant_count": 0,
+             "description": "首营企业资质文件完整有效", "check_key": "first_supplier"},
+            {"item": "首营品种资质管理", "compliant": True, "non_compliant_count": 0,
+             "description": "首营品种注册批件等资料齐全", "check_key": "first_drug"},
+            {"item": "近效期预警机制", "compliant": True, "non_compliant_count": 0,
+             "description": "近效期药品100%预警", "check_key": "near_expiry"},
+            {"item": "过期药品锁定", "compliant": True, "non_compliant_count": 0,
+             "description": "过期药品自动锁定，禁止出库", "check_key": "expired_lock"},
+            {"item": "先进先出规则", "compliant": True, "non_compliant_count": 0,
+             "description": "FIFO出库规则正确执行", "check_key": "fifo"},
+            {"item": "近效期先出规则", "compliant": True, "non_compliant_count": 0,
+             "description": "FEFO出库规则正确执行", "check_key": "fefo"},
+            {"item": "冷链温湿度监控", "compliant": True, "non_compliant_count": 0,
+             "description": "冷链药品温湿度全程可追溯", "check_key": "cold_chain_data"},
+            {"item": "药品追溯管理", "compliant": True, "non_compliant_count": 0,
+             "description": "药品追溯码上传率100%", "check_key": "trace_upload"},
+            {"item": "操作日志可追溯", "compliant": True, "non_compliant_count": 0,
+             "description": "所有操作留痕可审计", "check_key": "audit_log"},
+        ]
+
+        if not pre_check_result:
+            return items
+
+        modules = pre_check_result.get("modules", {})
+
+        gsp_checks = modules.get("gsp_rules", {}).get("checks", {})
+        for item in items:
+            check_key = item["check_key"]
+            if check_key in gsp_checks:
+                check_result = gsp_checks[check_key]
+                is_success = check_result.get("success", False)
+                item["compliant"] = is_success
+                if not is_success:
+                    item["non_compliant_count"] = 1
+                    item["description"] = check_result.get("message", "检查未通过")
+
+        cold_chain_checks = modules.get("cold_chain", {}).get("checks", {})
+        for item in items:
+            if item["check_key"] == "cold_chain_data":
+                cc_check = cold_chain_checks.get("data_completeness", {})
+                is_success = cc_check.get("success", False)
+                item["compliant"] = is_success
+                if not is_success:
+                    item["non_compliant_count"] = 1
+                    item["description"] = cc_check.get("message", "冷链温湿度数据不完整")
+
+        drug_admin_checks = modules.get("drug_admin_interface", {}).get("checks", {})
+        for item in items:
+            if item["check_key"] == "trace_upload":
+                trace_check = drug_admin_checks.get("trace_upload", {})
+                is_success = trace_check.get("success", False)
+                item["compliant"] = is_success
+                if not is_success:
+                    item["non_compliant_count"] = 1
+                    item["description"] = trace_check.get("message", "药品追溯码上传失败")
+
+        return items
 
     def _generate_basic_info_section(self, release_id: str,
                                      pre_check_result: Dict[str, Any],
@@ -565,6 +636,57 @@ class ReportEngine:
 
         return records
 
+    def _find_pre_check_by_release_id(self, release_id: str) -> Optional[Dict[str, Any]]:
+        """根据发布ID查找前置校验结果"""
+        pre_check_dir = f"{self.data_path}/pre_check"
+        if not os.path.exists(pre_check_dir):
+            return None
+
+        for filename in sorted(os.listdir(pre_check_dir), reverse=True):
+            if not filename.endswith(".json"):
+                continue
+            if release_id in filename:
+                file_path = os.path.join(pre_check_dir, filename)
+                try:
+                    return load_json(file_path)
+                except Exception:
+                    pass
+        return None
+
+    def _find_approval_by_release_id(self, release_id: str) -> Optional[Dict[str, Any]]:
+        """根据发布ID查找审批流"""
+        approval_dir = f"{self.data_path}/approvals"
+        if not os.path.exists(approval_dir):
+            return None
+
+        for filename in os.listdir(approval_dir):
+            if not filename.endswith(".json"):
+                continue
+            file_path = os.path.join(approval_dir, filename)
+            try:
+                data = load_json(file_path)
+                if data and data.get("release_id") == release_id:
+                    return data
+            except Exception:
+                pass
+        return None
+
+    def _find_gray_release_by_release_id(self, release_id: str) -> Optional[Dict[str, Any]]:
+        """根据发布ID查找灰度发布记录"""
+        releases = self._load_all_releases()
+        for release in releases:
+            if release.get("release_id") == release_id:
+                return release
+        return None
+
+    def _find_cb_by_gray_id(self, gray_id: str) -> Optional[Dict[str, Any]]:
+        """根据灰度ID查找熔断记录"""
+        cb_records = self._load_all_cb_records()
+        for record in cb_records:
+            if record.get("gray_id") == gray_id:
+                return record
+        return None
+
     def _save_report(self, report_id: str, report: Dict[str, Any]):
         """保存报表"""
         try:
@@ -625,6 +747,30 @@ class ReportEngine:
             lines.append(f"检查项总数: {report.get('total_items', 0)}")
             lines.append(f"合规项: {report.get('compliant_items', 0)}")
             lines.append(f"不合规项: {report.get('non_compliant_items', 0)}")
+
+            compliance_details = report.get('compliance_details', [])
+            if compliance_details:
+                lines.append("")
+                lines.append("合规检查明细:")
+                lines.append("-" * 40)
+                for item in compliance_details:
+                    status = "✓" if item.get("compliant") else "✗"
+                    lines.append(f"  {status} {item.get('item', '')}")
+                    if not item.get("compliant"):
+                        lines.append(f"      描述: {item.get('description', '')}")
+                        nc_count = item.get('non_compliant_count', 0)
+                        if nc_count > 0:
+                            lines.append(f"      不合规数量: {nc_count}")
+                        if item.get('issues'):
+                            lines.append(f"      问题: {item.get('issues')}")
+
+            rectification = report.get('rectification_notice', [])
+            if rectification:
+                lines.append("")
+                lines.append("整改通知:")
+                lines.append("-" * 40)
+                for notice in rectification:
+                    lines.append(f"  {notice}")
 
         lines.append("=" * 60)
 

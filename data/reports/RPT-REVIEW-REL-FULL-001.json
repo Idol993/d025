@@ -1,0 +1,135 @@
+{
+  "report_id": "RPT-REVIEW-REL-FULL-001",
+  "report_type": "release_review",
+  "release_id": "REL-FULL-001",
+  "generate_time": "2026-06-21 07:53:37",
+  "version": "3.0.0",
+  "sections": {
+    "basic_info": {
+      "title": "发布基本信息",
+      "release_id": "REL-FULL-001",
+      "version": "3.0.0",
+      "channel": "normal",
+      "start_time": "2026-06-21 07:52:09",
+      "end_time": "2026-06-21 07:53:25",
+      "participants": [
+        "孙IT",
+        "王业务",
+        "李质量",
+        "赵质管"
+      ],
+      "result": "熔断中"
+    },
+    "pre_check": {
+      "title": "前置校验",
+      "overall_pass": true,
+      "block_level": "none",
+      "total_checks": 15,
+      "passed_checks": 15,
+      "warning_checks": 0,
+      "blocked_checks": 0,
+      "modules": [
+        "gsp_rules",
+        "inventory_consistency",
+        "cold_chain",
+        "drug_admin_interface"
+      ],
+      "suggestions": []
+    },
+    "approval": {
+      "title": "审批流程",
+      "channel": "normal",
+      "status": "approved",
+      "total_nodes": 4,
+      "approved": 4,
+      "rejected": 0,
+      "emergency_reason": "",
+      "create_time": "2026-06-21 07:52:19",
+      "update_time": "2026-06-21 07:52:34"
+    },
+    "gray_release": {
+      "title": "灰度发布",
+      "status": "circuit_broken",
+      "current_stage": 2,
+      "total_stages": 4,
+      "completed_stages": 1,
+      "stages": [
+        {
+          "stage": 1,
+          "name": "常温库/普通药品库",
+          "status": "completed",
+          "risk_level": "low",
+          "observation_hours": 2
+        },
+        {
+          "stage": 2,
+          "name": "阴凉库",
+          "status": "circuit_broken",
+          "risk_level": "medium",
+          "observation_hours": 4
+        },
+        {
+          "stage": 3,
+          "name": "冷藏库/冷冻库",
+          "status": "pending",
+          "risk_level": "high",
+          "observation_hours": 8
+        },
+        {
+          "stage": 4,
+          "name": "特殊管理药品库",
+          "status": "pending",
+          "risk_level": "critical",
+          "observation_hours": 24
+        }
+      ],
+      "events": [
+        {
+          "time": "2026-06-21 07:52:43",
+          "type": "start",
+          "detail": "灰度发布启动，进入第一阶段"
+        },
+        {
+          "time": "2026-06-21 07:53:13",
+          "type": "stage_advance",
+          "detail": "进入阶段2: 阴凉库"
+        },
+        {
+          "time": "2026-06-21 07:53:25",
+          "type": "circuit_break",
+          "detail": "触发熔断: 测试熔断回滚流程"
+        },
+        {
+          "time": "2026-06-21 07:53:25",
+          "type": "rollback",
+          "detail": "执行warehouse级回滚"
+        }
+      ]
+    },
+    "circuit_breaker": {
+      "title": "熔断与回滚",
+      "triggered": true,
+      "trigger_time": "2026-06-21 07:53:25",
+      "reason": "测试熔断回滚流程",
+      "rollback_level": "warehouse",
+      "status": "rolled_back",
+      "rollback_executed": true
+    },
+    "summary": {
+      "title": "总结与改进",
+      "lessons_learned": [
+        "本次发布触发熔断，原因: 测试熔断回滚流程"
+      ],
+      "improvement_actions": [
+        "分析熔断根因，制定预防措施"
+      ],
+      "overall_evaluation": "需改进"
+    }
+  },
+  "data_sources": {
+    "pre_check": true,
+    "approval_flow": true,
+    "gray_release": true,
+    "circuit_breaker": true
+  }
+}

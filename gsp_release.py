@@ -178,9 +178,63 @@ class GSPReleasePlatform:
 
         return result
 
-    def advance_gray_stage(self, gray_id: str) -> dict:
+    def advance_gray_stage(self, gray_id: str, current_metrics: dict = None) -> dict:
         """推进灰度阶段"""
         self.logger.info(f"推进灰度阶段 - 灰度ID: {gray_id}")
+
+        gray_status = self.gray_engine.get_release_status(gray_id)
+        if not gray_status:
+            return {"success": False, "message": "灰度发布任务不存在"}
+
+        observation_complete = self.gray_engine.check_observation_complete(gray_id)
+        if not observation_complete:
+            current_stage = gray_status.get("current_stage", 0)
+            stage_info = self.gray_engine.get_stage_status(gray_id, current_stage)
+            observation_hours = stage_info.get("observation_hours", 2) if stage_info else 2
+            return {
+                "success": False,
+                "message": f"观察期未结束，当前阶段{current_stage}需要观察{observation_hours}小时，暂不能推进",
+                "can_advance": False,
+                "observation_complete": False
+            }
+
+        if current_metrics is None:
+            current_metrics = self._get_current_business_metrics(gray_id)
+        else:
+            current_metrics = self._normalize_metrics(current_metrics)
+
+        eval_result = self.circuit_breaker.evaluate_metrics(
+            metrics=current_metrics,
+            metrics_history=gray_status.get("metrics_history", [])
+        )
+
+        if eval_result.get("should_circuit_break"):
+            reason = eval_result.get("circuit_reason", "业务指标异常")
+            rollback_level = eval_result.get("rollback_level", "warehouse")
+
+            self.logger.warning(f"指标异常触发熔断 - 灰度ID: {gray_id}, 原因: {reason}")
+
+            # 自动执行熔断回滚
+            cb_result = self.trigger_circuit_break(
+                gray_id=gray_id,
+                reason=reason,
+                rollback_level=rollback_level
+            )
+
+            return {
+                "success": False,
+                "message": f"业务指标异常，触发熔断: {reason}",
+                "can_advance": False,
+                "should_circuit_break": True,
+                "circuit_reason": reason,
+                "rollback_suggestion": eval_result.get("rollback_suggestion", ""),
+                "rollback_level": rollback_level,
+                "rollback_executed": cb_result.get("success", False),
+                "rollback_result": cb_result
+            }
+
+        if eval_result.get("has_warning"):
+            self.logger.warning(f"存在告警指标，建议谨慎推进 - 灰度ID: {gray_id}")
 
         result = self.gray_engine.advance_stage(gray_id)
 
@@ -193,7 +247,83 @@ class GSPReleasePlatform:
                 detail={"current_stage": result.get("current_stage")}
             )
 
+        result["observation_complete"] = True
+        result["metrics_evaluation"] = eval_result
+
         return result
+
+    def _get_current_business_metrics(self, gray_id: str) -> dict:
+        """获取当前业务指标（模拟实现）"""
+        gray_status = self.gray_engine.get_release_status(gray_id)
+        current_stage = gray_status.get("current_stage", 1) if gray_status else 1
+
+        return {
+            "document": {
+                "purchase_error_rate": 0.003,
+                "sales_error_rate": 0.002,
+                "inbound_check_error_rate": 0.001,
+                "outbound_check_error_rate": 0.002
+            },
+            "cold_chain": {
+                "broken_chain_rate": 0.0005,
+                "temp_humidity_exceed_rate": 0.001,
+                "alarm_timeout_rate": 0.02
+            },
+            "drug_admin": {
+                "trace_upload_failure_rate": 0.0005,
+                "e_code_scan_failure_rate": 0.002,
+                "sync_delay_rate": 0.03
+            },
+            "stage": current_stage
+        }
+
+    def _normalize_metrics(self, metrics: dict) -> dict:
+        """标准化指标格式，支持扁平化指标名到嵌套结构的转换"""
+        if not metrics:
+            return metrics
+
+        normalized = {}
+
+        metric_mapping = {
+            "abnormal_order_rate": ("document", "sales_error_rate"),
+            "order_abnormal_rate": ("document", "sales_error_rate"),
+            "cold_chain_break_rate": ("cold_chain", "broken_chain_rate"),
+            "temp_exceed_rate": ("cold_chain", "temp_humidity_exceed_rate"),
+            "drug_admin_fail_rate": ("drug_admin", "trace_upload_failure_rate"),
+            "trace_fail_rate": ("drug_admin", "trace_upload_failure_rate"),
+            "ecode_fail_rate": ("drug_admin", "e_code_scan_failure_rate")
+        }
+
+        for key, value in metrics.items():
+            if key in metric_mapping:
+                category, metric_name = metric_mapping[key]
+                if category not in normalized:
+                    normalized[category] = {}
+                normalized[category][metric_name] = value
+            elif isinstance(value, dict):
+                normalized[key] = value
+
+        if "document" not in normalized:
+            normalized["document"] = {
+                "purchase_error_rate": 0.003,
+                "sales_error_rate": 0.002,
+                "inbound_check_error_rate": 0.001,
+                "outbound_check_error_rate": 0.002
+            }
+        if "cold_chain" not in normalized:
+            normalized["cold_chain"] = {
+                "broken_chain_rate": 0.0005,
+                "temp_humidity_exceed_rate": 0.001,
+                "alarm_timeout_rate": 0.02
+            }
+        if "drug_admin" not in normalized:
+            normalized["drug_admin"] = {
+                "trace_upload_failure_rate": 0.0005,
+                "e_code_scan_failure_rate": 0.002,
+                "sync_delay_rate": 0.03
+            }
+
+        return normalized
 
     def trigger_circuit_break(self, gray_id: str, reason: str,
                              rollback_level: str = "warehouse",
@@ -216,6 +346,14 @@ class GSPReleasePlatform:
         verify_result = self.circuit_breaker.verify_rollback(
             cb_record["circuit_breaker_id"]
         )
+
+        if rollback_result.get("success"):
+            self.gray_engine.record_metrics(gray_id, {"circuit_breaker_triggered": True, "rollback": True})
+            self.gray_engine.update_status_to_rolled_back(
+                gray_id=gray_id,
+                reason=reason,
+                rollback_level=rollback_level
+            )
 
         self.audit_logger.log(
             log_type="abnormal_event",
@@ -276,9 +414,31 @@ class GSPReleasePlatform:
         """生成月度报表"""
         return self.report_engine.generate_monthly_success_rate_report(year_month)
 
-    def generate_gsp_report(self, period: str = "quarter") -> dict:
+    def generate_gsp_report(self, period: str = "quarter", release_id: str = None) -> dict:
         """生成GSP合规报表"""
-        return self.report_engine.generate_gsp_compliance_report(period)
+        pre_check_result = None
+        if release_id:
+            pre_check_result = self._find_pre_check_by_release_id(release_id)
+
+        return self.report_engine.generate_gsp_compliance_report(period, pre_check_result)
+
+    def _find_pre_check_by_release_id(self, release_id: str) -> dict:
+        """根据发布ID查找前置校验结果"""
+        pre_check_dir = f"{self.data_path}/pre_check"
+        import os
+        if not os.path.exists(pre_check_dir):
+            return None
+
+        for filename in sorted(os.listdir(pre_check_dir), reverse=True):
+            if not filename.endswith(".json"):
+                continue
+            if release_id in filename:
+                file_path = os.path.join(pre_check_dir, filename)
+                try:
+                    return load_json(file_path)
+                except Exception:
+                    pass
+        return None
 
 
 def main():
@@ -359,6 +519,8 @@ def main():
 
     gray_advance = gray_sub.add_parser("advance", help="推进灰度阶段")
     gray_advance.add_argument("--gray-id", required=True, help="灰度发布ID")
+    gray_advance.add_argument("--metrics", type=str, default=None,
+                              help='业务指标，JSON格式，如 \'{"abnormal_order_rate": 0.1}\'')
 
     gray_status = gray_sub.add_parser("status", help="查看灰度状态")
     gray_status.add_argument("--gray-id", required=True, help="灰度发布ID")
@@ -383,6 +545,7 @@ def main():
     report_gsp = report_sub.add_parser("gsp", help="GSP合规报表")
     report_gsp.add_argument("--period", choices=["month", "quarter", "year"],
                            default="quarter", help="统计周期")
+    report_gsp.add_argument("--release-id", type=str, help="关联的发布ID，用于根据前置校验结果生成合规报表")
 
     audit_parser = subparsers.add_parser("audit", help="审计日志")
     audit_sub = audit_parser.add_subparsers(dest="audit_action")
@@ -462,9 +625,22 @@ def main():
                     print(summary)
 
             elif args.gray_action == "advance":
-                result = platform.advance_gray_stage(args.gray_id)
+                metrics = None
+                if args.metrics:
+                    try:
+                        import json
+                        metrics = json.loads(args.metrics)
+                    except:
+                        print("错误：metrics参数格式错误，应为JSON格式")
+                        exit(1)
+                result = platform.advance_gray_stage(args.gray_id, metrics)
                 print(f"阶段推进: {'成功' if result.get('success') else '失败'}")
                 print(f"消息: {result.get('message', '')}")
+                if not result.get('success'):
+                    if result.get('should_circuit_break'):
+                        print("警告: 业务指标异常，已触发熔断回滚")
+                    elif result.get('observation_complete') is False:
+                        print("提示: 请等待观察期结束后再推进")
                 if result.get("release"):
                     summary = platform.gray_engine.get_release_summary(args.gray_id)
                     print(summary)
@@ -502,7 +678,8 @@ def main():
                 print(report_text)
 
             elif args.report_action == "gsp":
-                report = platform.generate_gsp_report(args.period)
+                release_id = getattr(args, "release_id", None)
+                report = platform.generate_gsp_report(args.period, release_id)
                 report_text = platform.report_engine.format_report_text(report)
                 print(report_text)
 
